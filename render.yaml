@@ -1,0 +1,27 @@
+services:
+  - type: web
+    name: whatsapp-ai-reply-assistant-api
+    runtime: python
+    plan: free
+    rootDir: backend
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: MONGODB_URL
+        sync: false
+      - key: MONGODB_DB
+        value: whatsapp_ai
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_MINUTES
+        value: "10080"
+      - key: FAISS_INDEX_DIR
+        value: ./faiss_indices
+      - key: EMBEDDINGS_MODEL
+        value: all-MiniLM-L6-v2
+
