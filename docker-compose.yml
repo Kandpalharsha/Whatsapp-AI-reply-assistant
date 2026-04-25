@@ -1,0 +1,12 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend/faiss_indices:/app/faiss_indices
+    restart: unless-stopped
+
