@@ -8,6 +8,8 @@ services:
     startCommand: uvicorn main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.11
       - key: OPENAI_API_KEY
         sync: false
       - key: MONGODB_URL
@@ -24,4 +26,5 @@ services:
         value: ./faiss_indices
       - key: EMBEDDINGS_MODEL
         value: all-MiniLM-L6-v2
+
 
