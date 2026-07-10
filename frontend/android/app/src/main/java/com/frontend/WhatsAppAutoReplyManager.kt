@@ -187,9 +187,16 @@ object WhatsAppAutoReplyManager {
       return
     }
 
+    // Mark the chat before sending so the outgoing WhatsApp notification
+    // is treated as our own reply and does not re-enter the reply pipeline.
+    markPendingOwnReply(snapshot.title, reply)
+    WhatsAppNotificationStore.markPendingSelfReply(snapshot.title, reply)
+
     try {
       WhatsAppNotificationStore.sendReply(context, target, reply)
     } catch (_: Exception) {
+      clearPendingOwnReply(snapshot.title)
+      WhatsAppNotificationStore.clearPendingSelfReply(snapshot.title)
       WhatsAppNotificationStore.updateAutoReplyStatus(
         snapshot.key,
         "Auto-reply failed while sending the quick reply action.",
@@ -298,6 +305,24 @@ object WhatsAppAutoReplyManager {
       repliedFingerprints[buildFingerprint(title, text)] = now
       awaitingRemoteReplyByChat[chatKey] = now
       lastSentReplyTextByChat[chatKey] = normalize(reply)
+    }
+  }
+
+  private fun markPendingOwnReply(title: String, reply: String) {
+    val now = System.currentTimeMillis()
+    val chatKey = normalize(title)
+    synchronized(inFlightKeys) {
+      pruneReplyHistory(now)
+      awaitingRemoteReplyByChat[chatKey] = now
+      lastSentReplyTextByChat[chatKey] = normalize(reply)
+    }
+  }
+
+  private fun clearPendingOwnReply(title: String) {
+    val chatKey = normalize(title)
+    synchronized(inFlightKeys) {
+      awaitingRemoteReplyByChat.remove(chatKey)
+      lastSentReplyTextByChat.remove(chatKey)
     }
   }
 

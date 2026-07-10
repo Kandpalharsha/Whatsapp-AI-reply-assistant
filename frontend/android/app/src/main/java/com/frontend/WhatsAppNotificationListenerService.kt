@@ -29,7 +29,9 @@ class WhatsAppNotificationListenerService : NotificationListenerService() {
       postTime = sbn.postTime,
       action = replyAction,
     )
-    WhatsAppAutoReplyManager.scheduleAutoReply(applicationContext, snapshot)
+    if (snapshot != null) {
+      WhatsAppAutoReplyManager.scheduleAutoReply(applicationContext, snapshot)
+    }
   }
 
   override fun onNotificationRemoved(sbn: StatusBarNotification) {
